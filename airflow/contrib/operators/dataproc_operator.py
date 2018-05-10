@@ -1034,7 +1034,7 @@ class DataProcPySparkOperator(BaseOperator):
                     local_files.append(self._upload_file_temp(bucket, file))
                 else:  # remote file
                     remote_files.append(file)
-                self.files = local_files + remote_files
+            self.files = local_files + remote_files
                 
         job.set_python_main(self.main)
         job.add_args(self.arguments)
