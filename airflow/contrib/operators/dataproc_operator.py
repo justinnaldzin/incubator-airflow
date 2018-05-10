@@ -1020,7 +1020,7 @@ class DataProcPySparkOperator(BaseOperator):
             self.main = self._upload_file_temp(bucket, self.main)
         
         #  Check if any of the files are local, if that is the case, upload it to a bucket
-        if self.files not None:
+        if self.files is not None:
             local_files = []
             remote_files = []
             for file in self.files:
