@@ -1009,7 +1009,7 @@ class DataProcPySparkOperator(BaseOperator):
         job = hook.create_job_template(
             self.task_id, self.cluster_name, "pysparkJob", self.dataproc_properties)
 
-        #  Check if the file is local, if that is the case, upload it to a bucket
+        #  Check if the main file is local, if that is the case, upload it to a bucket
         if os.path.isfile(self.main):
             cluster_info = hook.get_cluster(
                 project_id=hook.project_id,
@@ -1018,8 +1018,25 @@ class DataProcPySparkOperator(BaseOperator):
             )
             bucket = cluster_info['config']['configBucket']
             self.main = self._upload_file_temp(bucket, self.main)
+        
+        #  Check if any of the files are local, if that is the case, upload it to a bucket
+        if self.files not None:
+            local_files = []
+            remote_files = []
+            for file in self.files:
+                if os.path.isfile(file):  # local file
+                    cluster_info = hook.get_cluster(
+                        project_id=hook.project_id,
+                        region=self.region,
+                        cluster_name=self.cluster_name
+                    )
+                    bucket = cluster_info['config']['configBucket']
+                    local_files.append(self._upload_file_temp(bucket, file))
+                else:  # remote file
+                    remote_files.append(file)
+                self.files = local_files + remote_files
+                
         job.set_python_main(self.main)
-
         job.add_args(self.arguments)
         job.add_jar_file_uris(self.dataproc_jars)
         job.add_archive_uris(self.archives)
