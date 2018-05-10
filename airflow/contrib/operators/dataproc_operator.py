@@ -958,13 +958,13 @@ class DataProcPySparkOperator(BaseOperator):
                 "the 'temp_bucket' key in the connection string")
 
         self.log.info("Uploading %s to %s", local_file, temp_filename)
-
+                
         GoogleCloudStorageHook(
             google_cloud_storage_conn_id=self.gcp_conn_id
         ).upload(
             bucket=bucket,
             object=temp_filename,
-            mime_type='application/x-python',
+            #mime_type='application/x-python',
             filename=local_file
         )
         return "gs://{}/{}".format(bucket, temp_filename)
